@@ -1,0 +1,248 @@
+\documentclass{article}
+\usepackage[british]{babel}
+\usepackage{amsmath,latexsym,xcolor,theorem}
+
+%%%%%%%%%% Start TeXmacs macros
+\catcode`\<=\active \def<{
+\fontencoding{T1}\selectfont\symbol{60}\fontencoding{\encodingdefault}}
+\newcommand{\assign}{:=}
+\newcommand{\comma}{{,}}
+\newcommand{\infixand}{\text{ and }}
+\newcommand{\tmaffiliation}[1]{\\ #1}
+\newcommand{\tmop}[1]{\ensuremath{\operatorname{#1}}}
+\newenvironment{proof}{\noindent\textbf{Proof\ }}{\hspace*{\fill}$\Box$\medskip}
+\newtheorem{definition}{Definition}
+{\theorembodyfont{\rmfamily}\newtheorem{remark}{Remark}}
+\newtheorem{theorem}{Theorem}
+%%%%%%%%%% End TeXmacs macros
+
+\begin{document}
+
+\title{Review Large Scale Evolutionary Optimization Using Cooperative
+Coevolution}
+
+\author{
+  Tingyu Zhang
+  \tmaffiliation{2023.10.18}
+}
+
+\maketitle
+
+\section{Introduction}
+
+What is the proble:
+
+Evolutionary optimization performs {\color[HTML]{FFAAFF}well on low-dimension
+problems}, but{\color[HTML]{FFAAFF} fails in solving high-dimension problems}.
+
+Cooperative coevolution can solve high-dimension problems.
+
+Problem Decomposition: Decompose a high-dimensional objective vector into
+smaller subcomponents that can be handled by conventional EAs.
+
+Subcomponent Optimization: Evolve each subcomponent separately using a
+certain EA.
+
+Subcomponents Coadaptation: Since interdependencies may exist between
+subcomponents, coadaptation (i.e., coevolution) is essential in capturing such
+interdependencies during optimization.
+
+2 methods: \
+
+one-dimensional based: n-dimensional problem would be decomposed into n
+1-dimensional problems. Simple and effective for separable functions, it did
+not consider interdependencies among variables for nonseparableproblems.
+
+splitting-in-half strategies:decompose a high-dimensional vector into two
+equal halves and thus reducing an n-dimensional problem into two n2
+-dimensional problems
+
+\
+
+paper did:the grouping based strategy, in order to better capture the
+variable interdependencies for nonseparable problems by optimize a group of
+interacting variables together (as a subcomponent), rather than splitting them
+into different subcomponents.
+
+his paper also introduces a new differential evolution (DE) variant, SaNSDE,
+as the base optimizer for subcomponents.
+
+\section{Cooperative Coevolution}
+
+Algorithm
+
+(1) Decompose an objective vector into m low-dimensional subcomponents.\\
+(2) Set i = 1 to start a new cycle.\\
+(3) Optimize the i-th subcomponent with a certain EA for a predefined number
+of\\
+fitness evaluations (FEs).\\
+(4) If i < m then i + +, and go to Step 3.\\
+(5) Stop if halting criteria are satisfied; otherwise go to Step 2 for the
+next cycle.\\
+
+
+For nowadays CC, 3 shortcomings happen :
+
+First, the decomposition strategies did not take into account variable
+interdependencies for nonseparable problems.
+
+Second, the base optimizer (e.g., an EA) was out of date.
+
+Third, the CC algorithms were able to deal with problems with only up to 100
+dimensions.
+
+\
+
+\section{The New Framework with Grouping and Adaptive Weighting}
+
+\
+
+crucial idea : Spliting an objective vector into m s-dimensional
+subcomponents (assuming n = m {\ast} s)
+
+(1) Set i = 1 to start a new cycle.
+
+(2) Split an n-dimensional object vector into m subcomponents (s-dimensional)
+randomly, i.e. n = m {\ast} s. Here ``randomly'' means that each variable has
+the same\\
+chance to be assigned into any of the subcomponents.\\
+(3) Optimize the i-th subcomponent with a certain EA for a predefined number
+of\\
+FEs.\\
+(4) If i < m then i + +, and go to Step 3.\\
+(5) Apply a weight to each of the subcomponents. Evolve the weight vectors for
+the\\
+best, the worst and a random members of current population.\\
+(6) Stop if halting criteria are satisfied; otherwise go to Step 1 for the
+next cycle.\\
+
+
+The main differences between our proposed approach and the existing ones are:
+
+(1) Our new framework evolves a group of variables together, and the grouping
+structure will be changed dynamically;
+
+(2) The new framework uses adaptive weighting for coadaptation among
+subcomponents after each cycle.
+
+This scheme of algorithm will be denoted as {\color[HTML]{AAAAFF}EACC-G} in
+our paper
+
+\subsection{Why and How Well EACC-G Works}
+
+\begin{definition}
+  $f (x)$ is called a separable function if $\forall k \in \{1, n\}$ and
+\end{definition}
+\begin{equation}
+  \left. \begin{array}{l}
+    x \in S, x = (x_1, \ldots, x_k, \ldots, x_n)\\
+    x^{'} \in S , x^{'} = (x_1, \ldots, x^{'}_k, \ldots, x_n)
+  \end{array} \right\} f (x) < f (x^{'})
+\end{equation}
+imply
+\begin{equation}
+  \left. \begin{array}{l}
+    \forall y \in S, y = (y_1, \ldots, x_k, \ldots, y_n)\\
+    \forall y^{'} \in S , y^{'} = (y_1, \ldots, x^{'}_k, \ldots, y_n)
+  \end{array} \right\} f (y) < f (y^{'})
+\end{equation}
+Otherwise, $f (x)$ is non-separable function.
+
+\begin{remark}
+  Basically, non-separability means that the objective vector consists of
+  interacting variables, while separability means that the influence of a
+  variable on the fitness value depends only on itself, i.e., independent of
+  any other variables.
+\end{remark}
+
+Given a nonseparable function, if all of its variables are highly
+interdependent of each other, no CC algorithms would perform well on such an
+extreme case.The proposed EACC-G has been designed to decompose a nonseparable
+problem following the above principle.
+
+The following theorem shows a simple case of the probability to optimize two
+interacting variablestogether in EACC-G.
+
+\begin{theorem}
+  The probability of EACC-G to assign two interacting variables $x_i$ and
+  $x_j$ into a single subcomponent for at least k cycles is:
+  \begin{equation}
+    P_k = \underset{r = k}{\sum^N} \left( \begin{array}{c}
+      N\\
+      r
+    \end{array} \right) \left( \frac{1}{m} \right)^r \left( 1 - \frac{1}{m}
+    \right)^{N - r}
+  \end{equation}
+\end{theorem}
+
+where N is the total number of cycles and m is the number of subcomponents.
+
+\begin{proof}
+  $1. p \assign P \left\{ x_j \infixand x_i \tmop{in} \tmop{the} \tmop{same}
+  \tmop{subcomponent} \right\} = \frac{\left( \begin{array}{c}
+    m\\
+    1
+  \end{array} \right)}{m^2 (\tmop{all} m - \tmop{cycle} \tmop{can} \tmop{be}
+  \tmop{choose})}$=$\frac{1}{m}$,
+  
+  2.P\{$x_j \infixand x_i \tmop{in} \tmop{the} \tmop{same} \tmop{subcomponent}
+  \tmop{in} r - \tmop{cycle}$\}=$\left( \begin{array}{c}
+    N\\
+    r
+  \end{array} \right) p^r (1 - p)^{N - r}$
+\end{proof}
+
+\
+
+\section{Self-adaptive Differential Evolution with Neighbourhood Search}
+
+The primary driving force behind DE is mutation.DE executes its mutation by
+adding a weighted difference vector between two individuals to a third
+individual.
+
+\
+
+\subsection{Classical Differential Evolution}
+
+(1)Mutation
+
+(2)Crossover
+
+(3)Selection
+
+\subsection{Differential Evolution with Neighbourhood Search (NSDE)}
+
+Although DE might be similar to the evolutionary process in EP, it lacks a
+relevant concept of neighbourhood search.NSDE is the same as the DE described
+in Section 4.1.1 except for Eq. (4).
+\begin{equation}
+  v_i = x_{i_1} + \left\{ \begin{array}{l}
+    d_i \cdot N (0.5, 0.5), \tmop{if} U (0, 1) < 0.5\\
+    d_i \cdot \delta, \tmop{otherwise}
+  \end{array} \right.
+\end{equation}
+where $N (\cdot \comma \cdot)$ is Gaussian random number, $\delta \tmop{is}
+\tmop{Cauchy} \tmop{random} \tmop{variable} \tmop{with} \tmop{scale} 1.$
+
+\
+
+\subsection{Self-adaptive NSDE (SaNSDE)}
+
+SaNSDE is same as NSDE except for the following:
+
+(1) Introducing the self-adaptive mechanism from SaDE.
+
+(2) Following the strategy in SaDE to dynamically adapt the value of CR.
+
+(3) Using the same self-adaptive strategy as that in SaDE to adapt the balance
+between Gaussian and Cauchy operators
+
+\
+
+\subsection{SaNSDE Under the New CC Framework}
+
+\
+
+\
+
+\end{document}

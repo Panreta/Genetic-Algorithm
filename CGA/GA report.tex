@@ -1,0 +1,625 @@
+\documentclass{article}
+\usepackage[british]{babel}
+\usepackage{amsmath,amssymb,graphicx,stmaryrd,latexsym,xcolor,theorem}
+
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\assign}{:=}
+\newcommand{\tmaffiliation}[1]{\\ #1}
+\newcommand{\tmem}[1]{{\em #1\/}}
+\newcommand{\tmop}[1]{\ensuremath{\operatorname{#1}}}
+\newcommand{\tmsamp}[1]{\textsf{#1}}
+\newcommand{\tmstrong}[1]{\textbf{#1}}
+\newcommand{\tmverbatim}[1]{\text{{\ttfamily{#1}}}}
+\newenvironment{proof}{\noindent\textbf{Proof\ }}{\hspace*{\fill}$\Box$\medskip}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+{\theorembodyfont{\rmfamily}\newtheorem{example}{Example}}
+\newtheorem{lemma}{Lemma}
+{\theorembodyfont{\rmfamily}\newtheorem{note}{Note}}
+{\theorembodyfont{\rmfamily}\newtheorem{remark}{Remark}}
+\newtheorem{theorem}{Theorem}
+%%%%%%%%%% End TeXmacs macros
+
+\begin{document}
+
+\title{Review Convergence of Canonical Genetic Algorithm}
+
+\author{
+  Tingyu Zhang
+  \tmaffiliation{2023.10.16}
+}
+
+\maketitle
+
+\section{Introduction}
+
+The target is to use Canonical genetic algorithm(CGA) to tackle the static
+optimization problems
+
+of the type:
+\begin{equation}
+  \max \{ f (b) \mid b \in \mathbb{B}^l \}
+\end{equation}
+which $\mathbb{B}^l \assign \{ 0, 1 \}^l, \tmop{and} \tmop{has} \tmop{the}
+\tmop{condition} 0 < f (b) < \infty \tmop{for} \tmop{all} b \in \mathbb{B}^l
+\tmop{and} f (b) \neq \tmop{const} .$
+
+In optimization theory an algorithm is said to converge to the global optimum
+if it {\tmem{{\tmem{generates a sequence of
+solutions{\tmstrong{\tmverbatim{{\tmsamp{}}}}}}}
+{\tmstrong{\tmverbatim{}}}}}or function values in which the global optimum is
+a limit value. Especially,
+
+it is proved by means of homogeneous finite Markov chains that the CGA
+neverconverges to the global optimum, but modified versions do.Precisely,
+probabilistic convergence of the best solution within a population to the
+global optimum under elitist selection, which is the theorem the rest of the
+paper will prove.
+
+\section{Basic Tools}
+
+We will introduce CGA and finite Markov Chain as the background:
+
+\subsection{CGA}
+
+A genetic algorithm consists of an n-tuple of binary strings $b_i$ of length
+l, where the bits of each string are considered to be the genes of an
+individual chromosome and where the n-tuple of individual chromosomes is said
+to be a population.
+
+\begin{example}
+  For a GA problem, suppose we have a genetic algorithm in which each
+  chromosome is a binary string of length 5, and our population size is 3. A
+  possible representation of the population could be:
+  
+  Chromosome 1: 10101
+  
+  Chromosome 2: 11010
+  
+  Chromosome 3: 00111
+  
+  The tuple consisting of these three chromosomes, $(10101, 11010, 00111)$,
+  represents our population. $b_i \tmop{represents} a \tmop{certain}
+  \tmop{chromosome} \tmop{of} \tmop{population}, l = 5, n = 3, i \in
+  \llbracket 1, n \rrbracket$
+\end{example}
+
+Following the terminology of organic evolution the operations performed on the
+population are called mutation, crossover and selection (differential
+reproduction,差异化繁殖). Each individual bi represents a feasible
+solution of problem (1) and its ob jective function value $f (b_i)$ is said to
+be its fitness which is to be maximized.
+
+\begin{remark}
+  Fitness function is a judgement criterion that is positive and increase more
+  approach
+  
+  to the better solution. For example, $\max g (x) = - x^2 + 4 x, x \in [1,
+  5], \tmop{the} \tmop{corresponding} \tmop{fitness} \tmop{function}$
+  
+  can be $f (x) = g (x) + 100.$ And $\min g (x) = x^2, x \in [- 10, 10],
+  \tmop{the} \tmop{corresponding} \tmop{fitness} \tmop{function} \tmop{can}
+  \tmop{be}$
+  
+  $f (x) = \frac{1}{x^2 + 0.1}, \tmop{where} 0.1 \tmop{is} \tmop{for}
+  \tmop{avoiding} \tmop{the} \tmop{denominator} \tmop{to} \tmop{be} 0.$
+\end{remark}
+
+The algorithm is sketched as follows:
+
+choose an initial population\\
+determine the fitness of each individual\\
+perform selection\\
+repeat\\
+perform crossover\\
+perform mutation\\
+determine the fitness of each individual\\
+perform selection\\
+until some stopping criterion applies\\
+
+
+{\color[HTML]{AAAAFF}Mutation} operates independently on each individual by
+probabilistically perturbing each bit string. The event that the j-th bit of
+the i-th individual is flipped is stochastically independent and occurs with
+probability $p_m \in (0, 1)$. For example, the probability that string $b =
+00000$ transitions to string $b' = 10110$ by mutation is $p_m^k (1 - p_m)^{l -
+k}$ with $k = 3$ and $l = 5$. Clearly, $k$ is just the Hamming distance $H (b,
+b')$ between strings $b$ and $b'$. Therefore the probability that string $b_i$
+resembles string $b_i'$ \ after mutation can be aggregated to
+\begin{equation}
+  P \{ b_i \rightarrow b_i' \} = p_m^{H (b, b')} (1 - p_m)^{l - H (b, b')} > 0
+\end{equation}
+{\color[HTML]{AAAAFF}Crossover} operator is applied with some probability $p_c
+\in [0, 1]$ in order to construct a bit string from at least two other bit
+strings chosen at random. Although many crossover operators have been proposed
+a description can be omitted because the choice of a speciac crossover
+operator does not effect the subsequent analysis.(Check out)
+
+For {\color[HTML]{AAAAFF}Proportional selection}, the population of the next
+generation is determined by n independent random experiments. The probability
+that individual bi is selected from tuple $(b_1, \ldots, b_n)$ to be a member
+of the next generation at each experiment is given by:
+\begin{equation}
+  P \{ b_i \tmop{is} \tmop{selected} \} = \frac{f
+  (b_i)}{\overset{n}{\underset{j = 1}{\sum}} f (b_j)} > 0
+\end{equation}
+
+\subsection{Finite Markov Chains}
+
+A finite Markov chain describes a probabilistic trajectory over a finite state
+space $S$ of cardinality $| S | = n$, where the states may be numbered from 1
+to n.
+
+The probability $p_{\tmop{ij}} (t)$ of transitioning from state $i \in S
+\tmop{to} \tmop{state} j \in S$at step t is called the transition probability
+from $i \tmop{to} j \tmop{at} \tmop{step} t$.
+
+If the transition probabilities are independent from t, i.e., $p_{\tmop{ij}}
+(t) = p_{\tmop{ij}} (s)$ $\tmop{for} \tmop{all} i, j \in S \tmop{and}
+\tmop{for} \tmop{all} s ;$ $t \in \mathbb{N}$, the Markov chain is said to be
+homogeneous.
+
+\begin{remark}
+  Homogeneity is a really crucial property, since only homogeneous Markov
+  Chain
+  
+  can determain every step by transitioning matrix and initial state in the
+  formula $p^t = p^0 P^t$.
+\end{remark}
+
+\begin{definition}
+  A square matrix $A \in \mathcal{M}_n (K) $is said to be
+  
+  (a) nonnegative ($A \succcurlyeq 0$), if $a_{\tmop{ij}} \geqslant 0
+  \tmop{for} \tmop{all} i, j \in \{ 1, \ldots, n \}$
+  
+  (b) positive ($A \succ 0$), if $a_{\tmop{ij}} > 0 \tmop{for} \tmop{all} i, j
+  \in \{ 1, \ldots, n \}$
+  
+  A nonnegative matrix $A \in \mathcal{M}_n (K)$ is said to be
+  
+  (c) primitive, if there exists a $k \in \mathbb{N}$ such that $A ^k $is
+  positive,
+  
+  (d) reducible, if A can be brought into the form (with square matrices C and
+  T)\left(\begin{tabular}{c}
+    C {\tmstrong{{\tmem{0{\tmstrong{}}}}}}\\
+    R T
+  \end{tabular}\right) by applying the same permutations to rows and columns,
+  
+  (e) irreducible, if it is not reducible,
+  
+  (f ) stochastic, if $\sum_{j = 1}^n a_{\tmop{ij}} = 1 (\tmop{summation}
+  \tmop{of} \tmop{the} \tmop{row} \tmop{of} \tmop{matrix})  \prefixforall i
+  \in \{ 1, \ldots, n \}$
+  
+  A stochastic matrix $A \in \mathcal{M}_n (K)$ is said to be(g) stable, if it
+  has identical rows,
+  
+  (h) column al lowable, if it has at least one positive entry in each column.
+\end{definition}
+
+Quite a lot definitions are made, here comes what they can do:
+
+\
+
+\begin{lemma}
+  Let C，M and S be stochastic matrices, where M is positive and S is column
+  allowable. Then the product CMS is positive.
+\end{lemma}
+
+By the lamma 5, 2 theorem can be proved:
+
+\begin{theorem}
+  Let P be a primitive stochastic matrix. Then $P^k$ converges as $k
+  \rightarrow \infty$ to a positive stable stochastic matrix $P^{\infty} = 1'
+  p^{\infty}$, where $p^{\infty} = p^0 \underset{k \rightarrow \infty}{\lim
+  P^k} = p^0 P^{\infty}$ has nonzero entries andis unique regardless of the
+  initial distribution.
+  
+  proof:
+  
+  1. Positive stable stochastic get directly from definition.
+  
+  2. By induction, all element in $P^k$ is smaller than 1. And by
+  contradiction all eigen-valun of $P^k$
+  
+  must be smaller than 1. Since by $| I - P | = 0, P \tmop{has} 1 \tmop{as}
+  \tmop{eigen} - \tmop{value},$hence $P^k$has 1 as eigen-value. Hence
+  convergence exist and not to 0.
+\end{theorem}
+
+\begin{theorem}
+  Let P be a reducible stochastic matrix, where $C \in \mathcal{M}_m (K)$ is a
+  primitive stochastic matrix and $R, T \neq 0$. Then
+  \begin{equation}
+    P^{\infty} = \underset{k \rightarrow \infty}{\lim P^k} = \underset{k
+    \rightarrow \infty}{\lim} \left(\begin{array}{c}
+      C^k \hspace{5em} 0\\
+      \sum^{k - 1}_{i = 0} T^i \tmop{RC}^{k - i - 1} T^k
+    \end{array}\right) = \left(\begin{array}{c}
+      C^k 0\\
+      R_{\infty} 0
+    \end{array}\right)
+  \end{equation}
+\end{theorem}
+
+is a stable stochastic matrix with $P^{\infty} = 1' p^{\infty}$, where
+$p^{\infty} = p^0 P^{\infty}$ is unique regardless of the initial
+distribution, and $p^{\infty} \tmop{satisfies} : p_i^{\infty} > 0 \tmop{for} 1
+\leqslant i \leqslant m \tmop{and} p_i^{\infty} = 0 \tmop{for} m < i \leqslant
+n$.
+
+\section{Markov Chain Analysis of Genetic Algorithms}
+
+Determine the state space $S = \mathbb{B}^N =\mathbb{B}^{l \ast n},
+\tmop{where} l \tmop{is} \tmop{the} \tmop{nunber} \tmop{of} \tmop{genes}
+(\tmop{or} \tmop{length} \tmop{of} \tmop{chromosome}), \tmop{and} n
+\tmop{denotes} \tmop{the} \tmop{population} \tmop{size},$
+
+$\tmop{Each} \tmop{element} \tmop{of} \tmop{the} \tmop{state} \tmop{space}
+\tmop{can} \tmop{be} \tmop{regarded}$as an integer number in binary
+representation.
+
+($n = \sum^m_{k = 0} 2^k a_k$)
+
+The projection $\pi_k (i)$ picks up the k-th bit segment of length l from the
+binary representation of state i and is used to identify single individuals
+from the population.
+
+\begin{example}
+  For $b_i = 1111010110, \tmop{choose} l = 3, \pi_2 (i)$=101.
+\end{example}
+
+The probabilistic changes of the genes within the population caused by the
+genetic operators are captured by the transition matrix P, which can be
+decomposed in a natural way into a product of stochastic matrices $P = C M S$,
+where C, M and S describe the intermediate transitions caused by crossover,
+mutation and selection, respectively.
+
+\begin{theorem}
+  The transition matrix of the CGA with mutation probability $p_m \in (0, 1)$,
+  crossover probability $p_c \in [0, 1]$ and proportional selection is
+  primitive.
+\end{theorem}
+
+proved by discussing the structure of C,G,A and lemma 1.
+
+\
+
+The result can be used to form the uniqueness limit state
+
+\begin{corollary}
+  The CGA with parameter ranges as in Theorem 3 is an ergodic Markov chain,
+  i.e., there exists an unique limit distribution for the states of the chain
+  with nonzero probability to be in any state at any time regardless of the
+  initial distribution.
+\end{corollary}
+
+proved by Theorom 1 and Theorom 3.
+
+\begin{remark}
+  Ergodic Markov has another definition: the markov chain which is aperiodic,
+  irreducible and finite recurrence.
+\end{remark}
+
+From the result, we can apparently see that for such Markov chain the initial
+distribution $p ^0 $doesn't affect the limit distribution at all !
+
+The ergodicity property has consequences for the convergence behavior of the
+CGA. To avoid confusion, a precise de\k{}nition of the term convergence of a
+GA is required:
+
+\begin{definition}
+  Let $Z_t = \max \{ f (\pi_k^{(t)} (i) \mid k = 1, \ldots, n) \}$ be a
+  sequence of random variables representing the best fitness within a
+  population represented by state i at step t. A genetic algorithm converges
+  to the global optimum, if and only if
+  \begin{equation}
+    \underset{t \rightarrow \infty}{\lim} P \{ Z_t = f^{\ast} \} = 1,
+  \end{equation}
+\end{definition}
+
+where$f^{\ast} = \max \{ f (b) \mid b \in \mathbb{B}^l \} $is is the global
+optimum of problem (1)\label{(1)}.
+
+By this definition:
+
+\begin{theorem}
+  The CGA with parameter ranges as in Theorem 3 does not converge to the
+  global optimum.
+  
+  \begin{proof}
+    set $\max \{ f (\pi_k^{(t)} (i) \mid k = 1, \ldots, n) \} < f^{\ast}
+    ，p^t_i = \{ \tmop{probability} \tmop{GA} \tmop{in} \tmop{state} i
+    \tmop{at} \tmop{step} t \}$;
+    
+    \underbrace{$P \{ Z_t \neq f^{\ast} \} \geqslant p^t_i$}$\Leftrightarrow P
+    \{ Z_t = f^{\ast} \} \leqslant 1 - p^t_i$. Hence $\underset{t \rightarrow
+    \infty}{\lim} P \{ Z_t = f^{\ast} \} \leqslant 1 - p^t_i < 1.$
+    
+    see remark
+  \end{proof}
+\end{theorem}
+
+\begin{remark}
+  Does ``$P \{ Z_t \neq f^{\ast} \} \geqslant p^t_i$ '' stand for the
+  optimization may hard to get?
+\end{remark}
+
+Can CGA be changed a little to fulfill the convergence? Actually it can be
+done by the theorem of
+
+ergodic Markov chain:
+
+\begin{theorem}
+  In an ergodic Markov chain the expected transition time between initial
+  state i and any other state j is finite regardless of the states i and j,
+  i.e. $E (T_{i \rightarrow j}) < \infty .$
+\end{theorem}
+
+\subsection{Little Change to make convergence}
+
+To make the result in conformity with Definition 2:
+
+Change: Enlarging the population by adding {\color[HTML]{AAAAFF}super
+individual} which does not take part in the evolutionary process.
+
+Cardinality: From $2^{n \ast l} \rightarrow 2^{(n + 1) \ast l}$，give $l$
+bits for super indivitual leftmost and is accessible by
+
+$\pi_0 (i) \tmop{at} \tmop{state} i.$
+
+Require :better the super individual's fitness the higher the position of the
+corresponding state in the matrix.
+
+The extended transition matrices are written as diagonal matrices with $2^l
+\tmop{square} \tmop{matrices} C, M, S \quad$
+
+of size $2^{\tmop{nl}} \times 2^{\tmop{nl}}$.
+
+The copy operation is represented by an upgrade matrix U which upgrades an
+intermediate state containing an individual better than its super individual
+to a state where the super individual equals the better individual.
+
+Let $b = \tmop{argmax} \{ f (\pi_k  (i)) \mid k = 1, \ldots, n \} \in
+\mathbb{B}^l : =$\{$\tmop{best} \tmop{individual} \tmop{of} \tmop{the}
+\tmop{population} \tmop{at} \tmop{any} \tmop{state} i$(exclude super
+indivitual)\}.Then $u_{\tmop{ij}} = 1 \tmop{if} f (\pi_0 (i)) < f (b)
+\tmop{with} j \overset{\tmop{def}}{=} (b, \pi_1 (i), \pi_2 (i), \ldots, \pi_n
+(i)) < S$, otherwise $u_{\tmop{ii}} = 1$.(WHY?)
+
+Thus, there is exactly one entry in each row, which does not hold for the
+columns because for every state $j \in s$with $f (\pi_0 (i)) < \max \{ f
+(\pi_k  (i)) \mid k = 1, \ldots, n \} $one gets $u_{\tmop{ij}} = 0$ for all $i
+\in S.$
+
+\
+
+\
+
+\begin{theorem}
+  The canonical GA as in Theorem 3 maintaining the best solution found over
+  time after selection converges to the global optimum.
+\end{theorem}
+
+\
+
+\
+
+\begin{theorem}
+  The canonical GA as in Theorem 3 maintaining the best solution found over
+  time before selection converges globally optimal.
+\end{theorem}
+
+\begin{note}
+  Theorems 6 and 7 do not cover the case of elitist selection.\\
+  
+\end{note}
+
+\section{Discussion of results with respect to the schema theorem}
+
+A schema(模式) S describes a specific type of subsets of the feasible region
+$\mathbb{B}^l$ of problem (1) which is again assumed to have only one global
+optimal point $b^{\ast} \in \mathbb{B}^l .$
+
+Usually, these subsets are represented by a string of length l over the
+alphabet $\{ 0, 1, \# \} .$
+
+The utility of schema S restricted to multiset X is defined as the average
+objective function value over all elements contained in $S \cap X$:
+\begin{equation}
+  u (S, X) \assign \frac{1}{| S \cap X |} \underset{b \in S \cap X}{\sum} f
+  (b)
+\end{equation}
+Then schema theorem is
+\begin{equation}
+  E [| S \cap X |] \geqslant | S \cap X_t | \frac{u (S, X_t)}{u (\mathcal{S},
+  X_t)} (1 - c (S, X_t)) (1 - m (S, X_t))
+\end{equation}
+almost surely, where $(X_t)$ is the sequence of populations generated by the
+CGA and c(.) and m(.) are bounds for the probability that an element of subset
+S is modfied by crossover and mutation respectively, so that the resulting
+element is not contained in subset S.
+
+\begin{remark}
+  (7) state that the number of individuals in population $X_{t + 1} $with
+  above average fitness is expected to be no smaller than in population $X_t
+  $,if the probabilities c(.) and m(.) are sufficiently small. But not fairly
+  demonstrate the convergence to the global optimum.
+  
+  Generally, the specific content of the schema theorem is: under the action
+  of genetic operators selection, crossover, and mutation, schemas with low
+  order, short defining length, and average fitness higher than the population
+  average fitness will grow exponentially in the offspring.(Without proof)
+\end{remark}
+
+Technically, it is neccessary and sufficient that $\underset{t \rightarrow
+\infty}{\lim} E [I_t] = 1$ which implies $\underset{t \rightarrow
+\infty}{\lim} E \left[ \{ b^{\ast} \} \bigcap X_t \right] \geqslant 1,$
+
+where
+\begin{equation}
+  I_t \assign h (b^{\ast}, X_t) \assign \left\{ \begin{array}{l}
+    1, \tmop{if} b^{\ast} \in \{ \pi_1 (X_t), \ldots, \pi_n (X_t) \}\\
+    0, \tmop{otherwise}
+  \end{array} \right.
+\end{equation}
+means when $t > N$ for certain $N \in \mathbb{N}, b^{\ast} $will be in one of
+the states.
+
+In particular:
+
+\begin{lemma}
+  \
+  
+  $(a)  \underset{t \rightarrow \infty}{\lim} E [I_t] = 1 \Leftrightarrow
+  \underset{t \rightarrow \infty}{\lim} P \{ Z_t = f^{\ast} \} = 1$
+  
+  $(b)  \underset{t \rightarrow \infty}{\lim} E [I_t] = 1 \Rightarrow
+  \underset{t \rightarrow \infty}{\lim} E \left[ \{ b^{\ast} \} \bigcap X_t
+  \right] \geqslant 1$
+\end{lemma}
+
+Proof:
+
+$(a)$ Take $I_t = 1_{\{ \pi_1 (X_t), \ldots, \pi_n (X_t) \}} (b^{\ast}),
+\tmop{and} b^{\ast} \in \{ \pi_1 (X_t), \ldots, \pi_n (X_t) \} \Leftrightarrow
+\{ I_t = 1 \} \Leftrightarrow \{ Z_t = f^{\ast} \}$
+
+$(b)$ $g (b^{\ast}, X_t) \assign \tmop{count} \tmop{the} \tmop{number}
+\tmop{of} \tmop{optimal} \tmop{solution} b^{\ast} \tmop{in} \tmop{population}
+X_{t.}$ Compare to $h (b^{\ast}, X_t)$ which only count once $\Rightarrow$ $g
+(b^{\ast}, X_t) \geqslant h (b^{\ast}, X_t) \Rightarrow$
+\begin{equation}
+  \underset{t \rightarrow \infty}{\lim} E \left[ \{ b^{\ast} \} \bigcap X_t
+  \right] = \sum_{i = 1}^{| S |} g (b^{\ast}, X_t) \cdot p_i^{\infty}
+  \geqslant \sum_{i = 1}^{| S |} h (b^{\ast}, X_t) \cdot p_i^{\infty} =
+  \underset{t \rightarrow \infty}{\lim} E [I_t] = 1
+\end{equation}
+
+
+Converse for $(b)$ is not true:
+
+\
+
+\begin{remark}
+  For a CGA there is a minimal probability bounded from zero to lose the
+  global optimum solution at each generation. It follows from the
+  Borel-Cantelli Lemma that this event will occur with probability one.
+  
+  Borel-Cantelli Lemma: $\{ E_n \} \tmop{belongs} \tmop{to} a \tmop{certain}
+  \tmop{probability} \tmop{space}, \tmop{if} \sum_{n = 1}^{\infty} \mathbb{P}
+  (E_n) < \infty \Rightarrow \mathbb{P} \left( \underset{n \rightarrow
+  \infty}{\lim} \sup (E_n) \right) = 0$
+  
+  Intuition : For converge series like $\{ a_n \}$, $\sum_{n = N}^{\infty} a_n
+  \rightarrow 0$ as $N  \rightarrow \infty$.
+\end{remark}
+
+conclude,the global solution will be lost and found infinitely often
+$\rightarrow$the sequence $\left( \left| \left\{ b^{\ast} \bigcap X_t \right\}
+\right| \right)$ is an irreducible markov chain on the state space $\{ 0,
+\ldots, n \}$ $\rightarrow$ does not converge to the best solution although
+the expectation does
+
+\subsection{Analysis the bounds for the probabilities of losing and generating
+the optimal solution}
+
+Assume that $k \geqslant 1$ optimal solutions are contained in population Xt
+at generation t:
+
+The crossover operator may destroy or assemble some optimal solutions, so that
+there are k optimal solutions within the population after crossover.
+
+\subsubsection{The Optimal Solution Gets Lost}
+
+$1. k \geqslant 1.$
+
+The probability that at least one bit of an optimal solution is ipped is
+given by:
+
+$p_F \assign 1 - \underset{\tmop{all} l - \tmop{bit} \tmop{do} \tmop{not}
+\tmop{change}}{\underbrace{(1 - p_m)^l}} > 0,$the probability that all k
+optimal solutions are destroyed becomes:
+
+$p_F^k (1 - p_F)^{n - k} > 0, \tmop{bounded} \tmop{below} : \gamma_1 \assign
+\min \left\{ \underset{p_F < 1 - p_F}{\underbrace{p_F^n}}, \underset{1 - p_F <
+p_F}{\underbrace{(1 - p_F )^{n - 1}}} \right\} > 0$
+
+\
+
+$2. k = 0. (\tmop{all} \tmop{optimal} \tmop{solutions} \tmop{have}
+\tmop{been} \tmop{destroyed} \tmop{by} \tmop{crossover})$ \
+
+The probability that all bits within the population remain unaltered:
+
+$(1 - p_m)^{n \cdot l} = (1 - p_F )^n \assign \gamma_2 > 0.$
+
+$\tmop{the} \tmop{probability} \tmop{that} \tmop{the} \tmop{optimal}
+\tmop{solution} \tmop{is} \tmop{lost} \tmop{after} \tmop{crossover} \tmop{and}
+\tmop{mutation} \tmop{is} \tmop{at} \tmop{least} ：$
+
+$p_L = \min (\gamma_1, \gamma_2) = \min \{ p_F^n, (1 - p_F )^{n - 1}, (1 - p_F
+)^n \} = \min \{ p_F^n, (1 - p_F )^n \} > 0 (\tmop{all} n \tmop{destoyed},
+\tmop{at} \tmop{least} \tmop{one} \tmop{not}, \tmop{all} \tmop{not})$
+
+\subsubsection{The Optimal Solution Genrating}
+
+It remains to derive the bound for the probability to generate an optimal
+solution:
+
+The probability that mutation generates the optimal solution ${b^{\ast}}^{}$
+from individual $b_i :$
+
+$p_{B_i} \assign p_m^{H (b_i, b^{\ast})} (1 - p_m)^{l - H (b_i, b^{\ast})} > 0
+;$ Bounded below by:$p_B \assign \min \{ p_{B_i} \mid i \in \llbracket 1, n
+\rrbracket \} > 0.$
+
+The probability that this event occurs at least once is:$p_G \assign 1 - (1 -
+p_B)^n > 0.$
+
+\
+
+Next, consider the selection operator:
+
+Assume that only one optimal solution has been generated by mutation with
+probability $p_G .$
+
+The probability to select the optimal solution is given by:\quad$p_{b^{\ast}}
+\assign \frac{f (b^{\ast})}{\sum_{j = 1}^n f (b_j)} > 0$,
+
+The probability that this event occurs at least once becomes: $p_S \assign 1 -
+(1 - p_{b^{\ast}} )^n > 0.$
+
+The probability that a global solution is generated by mutation and that it
+survives the selection procedure can be bounded:$p_G \cdot p_S > 0.$
+
+
+
+\
+
+\
+
+\
+
+\
+
+\
+
+\resizebox{700}{345}{\includegraphics{file:///C:/Users/Pluviophile/Documents/Tencent
+Files/2170139052/FileRecv/MobileFile/note.jpg}}
+
+
+
+\
+
+\
+
+\
+
+\
+
+\
+
+\end{document}

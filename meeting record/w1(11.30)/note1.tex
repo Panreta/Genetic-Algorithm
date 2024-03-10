@@ -1,0 +1,55 @@
+\documentclass{article}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\assign}{:=}
+\newcommand{\tmop}[1]{\ensuremath{\operatorname{#1}}}
+%%%%%%%%%% End TeXmacs macros
+
+\begin{document}
+
+Define $f : \mathbb{R}^N \rightarrow \mathbb{R}$ and $ \bar{x} \in
+\mathbb{R}^N$ ,which $\bar{x} = \sum^N_{k = 1} a_k  \hat{x}_k$, \
+
+$\widehat{x }_k (k = 1, 2, \ldots ., n)$ is an orthogonal basis of
+$\mathbb{R}^N$, $a_k \in \mathbb{R}  (k = 1, 2, \ldots, n)$.
+
+we want find $\min_{\bar{x} \in \mathbb{R}^N} f (\bar{x})$ and the
+$\bar{x}^{\circ} \in {\mathbb{R}^N}^{}$, s.t
+\[ f \left( {\bar{x}^{\circ}}^{} \right) = \min_{\bar{x} \in \mathbb{R}^N} f
+   (\bar{x}) \]
+take $f (\bar{x}) \assign \| \bar{x} - \bar{x}^{\circ} \|$ as example, w.r.t
+$\| x \|$ is the norm of $x \in \mathbb{R}^N$
+
+w.l.o,g $\bar{x}^{\circ} \leftarrow 0$
+
+so $f (\bar{x}) \assign \| \bar{x} - \bar{x}^{\circ} \| \leftarrow \sum_{k =
+1}^n \| a_k  \hat{x}_k \|$
+
+to get the ans in trivial case,we consider the separability of $f (\bar{x})$.
+
+in this case $f (\bar{x})$ is fully additive separable.
+
+thus we can optimize the$f (\bar{x})$ by each apponent $\| a_k  \hat{x}_k \| 
+(k = 1, 2, \ldots, n)$
+
+and the problem is an n*1-dimension problem
+
+in Rudolph's argument we have an operator $G : \mathbb{R}^N \rightarrow
+\mathbb{R}^N$, \ $\bar{x}^{t + 1} : = G (\bar{x}^t)$ s.t
+
+the elitist selection make strong claim that $G (\bar{x}^{\circ}) =
+\bar{x}^{\circ}$, i.e $\bar{x}^{\circ}$ is a fixed-proof of $G$
+
+and for any initial $\bar{x}^0 \neq \bar{x}^{\circ}$
+\[ f (G (\bar{x}^0)) \geqslant f (G (\bar{x}^1)) \geqslant \cdots \geqslant f
+   (G (\bar{x}^{\circ})) \]
+By applying the G to each $\| a_k  \hat{x}_k \| = f (a_k  \hat{x}_k)$ to get
+$\overline{x }^{\circ}_k$ ,which minimize the $k \tmop{th}$ apponent
+
+finally combine the $\overline{x }^{\circ}_k$ together :
+\[ \sum_{k = 1}^n \overline{x }^{\circ}_k \]
+which is the $\bar{x}^{\circ}$ we want to get.
+
+\end{document}

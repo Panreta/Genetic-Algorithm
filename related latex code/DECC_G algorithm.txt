@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\begin{document}
+
+\begin{algorithm}
+\caption{DECC-G($s$, $cycles$, $FEs$, $wFEs$)}
+\begin{algorithmic}[1]
+\State $pop(1 : NP, 1 : n) \leftarrow \text{random population}$
+\State $wpop(1 : NP, 1 : n/s) \leftarrow \text{define weight population}$
+\State $(best, best\_val) \leftarrow \text{evaluate}(pop)$
+\For {$i \leftarrow 1$ to $cycles$}
+    \State $index(1 : n) \leftarrow \text{randperm}(n)$
+    \For {$j \leftarrow 1$ to $n/s$}
+        \State $l \leftarrow (j - 1) * s + 1$
+        \State $u \leftarrow j * s$
+        \State $subpop \leftarrow pop(:, index(l : u))$
+        \State $subpop \leftarrow \text{SaNSDE}(best, subpop, FEs)$
+        \State $wpop(:, j) \leftarrow \text{random weight}$
+        \State $pop(:, index(l : u)) \leftarrow subpop$
+    \EndFor
+    \State $(best, best\_val) \leftarrow \text{evaluate}(pop)$
+    \State $(best, best\_index) \leftarrow \text{findbest}(pop)$
+    \State $(rand, rand\_index) \leftarrow \text{findrand}(pop)$
+    \State $(worst, worst\_index) \leftarrow \text{findworst}(pop)$
+    \State $pop(best\_index, :) \leftarrow \text{DE}(best, wpop, wFEs)$
+    \State $pop(rand\_index, :) \leftarrow \text{DE}(rand, wpop, wFEs)$
+    \State $pop(worst\_index, :) \leftarrow \text{DE}(worst, wpop, wFEs)$
+    \State $(best, best\_val) \leftarrow \text{evaluate}(pop)$
+\EndFor
+\State \textbf{return} $best\_val$
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
